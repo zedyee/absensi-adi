@@ -46,7 +46,7 @@
                             {{-- logo --}}
                             <div class="text-center mb-5">
                                 <img src="public/img/logo-ad.png" class="img-fluid my-3" width="100px">
-                                <h2>Akar Daya-x</h2>
+                                <h2>Akar Daya</h2>
                             </div>
 
                             {{-- username input --}}
