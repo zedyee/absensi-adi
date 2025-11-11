@@ -56,6 +56,7 @@
                 {{-- button --}}
                 <div class="btn-group ms-auto" role="group">
                     {{-- <button type="button" class="btn btn-add px-4" style="background-color: #BDE3C3;">Tambah</button> --}}
+                    <button type="button" class="btn btn-excel px-4" style="background-color: #BDE3C3;">Excel</button>
                     <button type="button" class="btn btn-print px-4" style="background-color: #bdcfe3ff;">Print</button>
                 </div>
 
@@ -205,50 +206,49 @@
             });
 
             // === Tombol Excel ===
-            // $('.btn-excel').on('click', function() {
-            //     // Pastikan SheetJS sudah dimuat
-            //     if (typeof XLSX === 'undefined') {
-            //         $.getScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
-            //             function() {
-            //                 exportExcel();
-            //             });
-            //     } else {
-            //         exportExcel();
-            //     }
+            $('.btn-excel').on('click', function() {
+                // Pastikan SheetJS sudah dimuat
+                if (typeof XLSX === 'undefined') {
+                    $.getScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
+                        function() {
+                            exportExcel();
+                        });
+                } else {
+                    exportExcel();
+                }
 
-            //     function exportExcel() {
-            //         // Ambil header tabel
-            //         var headers = [];
-            //         $('#employeeTable thead th').each(function() {
-            //             headers.push($(this).text().trim());
-            //         });
+                function exportExcel() {
+                    // Ambil header tabel
+                    var headers = [];
+                    $('#employeeTable thead th').each(function() {
+                        headers.push($(this).text().trim());
+                    });
 
-            //         // Ambil baris yang sedang terlihat
-            //         var rows = [];
-            //         $('#employeeTable tbody tr:visible').each(function() {
-            //             var row = [];
-            //             $(this).find('td').each(function() {
-            //                 row.push($(this).text().trim());
-            //             });
-            //             rows.push(row);
-            //         });
+                    // Ambil baris yang sedang terlihat
+                    var rows = [];
+                    $('#employeeTable tbody tr:visible').each(function() {
+                        var row = [];
+                        $(this).find('td').each(function() {
+                            row.push($(this).text().trim());
+                        });
+                        rows.push(row);
+                    });
 
-            //         // Buat worksheet dari array
-            //         var worksheet_data = [headers, ...rows];
-            //         var worksheet = XLSX.utils.aoa_to_sheet(worksheet_data);
+                    // Buat worksheet dari array
+                    var worksheet_data = [headers, ...rows];
+                    var worksheet = XLSX.utils.aoa_to_sheet(worksheet_data);
 
-            //         // Buat workbook dan tambahkan worksheet
-            //         var workbook = XLSX.utils.book_new();
-            //         XLSX.utils.book_append_sheet(workbook, worksheet, "Employee");
+                    // Buat workbook dan tambahkan worksheet
+                    var workbook = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(workbook, worksheet, "Employee");
 
-            //         // Simpan file
-            //         var today = new Date().toISOString().split('T')[0];
-            //         XLSX.writeFile(workbook, 'employee' + today + '.xlsx');
-            //     }
-            // });
+                    // Simpan file
+                    var today = new Date().toISOString().split('T')[0];
+                    XLSX.writeFile(workbook, 'employee' + today + '.xlsx');
+                }
+            });
 
             // === Tombol Print ===
-
             $('.btn-print').on('click', function() {
                 // Ambil hanya baris yang sedang ditampilkan (tidak di-hide)
                 var rows = $('#employeeTable tbody tr:visible').clone();
