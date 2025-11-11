@@ -67,7 +67,7 @@
 
                 {{-- ekspor --}}
                 <div class="btn-group ms-auto" role="group">
-                    {{-- <button type="button" class="btn btn-excel px-4" style="background-color: #BDE3C3;">Excel</button> --}}
+                    <button type="button" class="btn btn-excel px-4" style="background-color: #BDE3C3;">Excel</button>
                     <button type="button" class="btn btn-print px-4" style="background-color: #bdcfe3ff;">Print</button>
                 </div>
             </div>
@@ -182,19 +182,19 @@
             }
 
             // === Tombol Excel ===
-            // $('.btn-excel').on('click', function() {
-            //     var today = new Date().toISOString().split('T')[0];
-            //     var tableClone = $('#absenceTable').clone();
-            //     tableClone.find('tbody tr').each(function(i, row) {
-            //         if ($(row).css('display') === 'none') {
-            //             $(row).remove();
-            //         }
-            //     });
-            //     var wb = XLSX.utils.table_to_book(tableClone[0], {
-            //         sheet: "Data Report Absensi"
-            //     });
-            //     XLSX.writeFile(wb, `report_absensi_${today}.xlsx`);
-            // });
+             $('.btn-excel').on('click', function() {
+                 var today = new Date().toISOString().split('T')[0];
+                 var tableClone = $('#absenceTable').clone();
+                 tableClone.find('tbody tr').each(function(i, row) {
+                     if ($(row).css('display') === 'none') {
+                         $(row).remove();
+                     }
+                 });
+                 var wb = XLSX.utils.table_to_book(tableClone[0], {
+                     sheet: "Data Report Absensi"
+                 });
+                 XLSX.writeFile(wb, `report_absensi_${today}.xlsx`);
+             });
 
             // === Tombol Print ===
             $('.btn-print').on('click', function() {
