@@ -69,8 +69,8 @@
                         <th style="width: 7%;">No</th>
                         <th style="width: 15%;">NIP</th>
                         <th>Nama</th>
-                        <th style="width: 15%;">Office</th>
-                        <th style="width: 15%;">Department</th>
+                        <th style="width: 20%;">Office</th>
+                        <th style="width: 20%;">Department</th>
                     </tr>
                 </thead>
                 <tbody>
