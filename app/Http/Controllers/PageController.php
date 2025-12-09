@@ -104,19 +104,22 @@ class PageController extends Controller
 
     public function showReport(Request $request)
     {
+        ini_set('max_execution_time', 0);
+
         // Ambil data office dan department untuk dropdown
         $offices = Office::select('SN', 'Alias')
             ->orderBy('Alias', 'asc')
             ->get();
+
         $departments = Department::select('DeptID', 'DeptName')
             ->orderBy('DeptName', 'asc')
             ->get();
 
-        // --- Ambil parameter alias dari request (default: 'HO')
-        $alias = $request->input('alias', 'HO');
-        $dept = $request->input('DeptName', default: 'All');
+        // Ambil parameter alias (default HO) dan department
+        $alias = $request->input('alias', 'AD-Philip-JAMBI'); // default tetap HO
+        $dept  = $request->input('DeptName', 'All');
 
-        // --- Ambil range tanggal dari request (default: 26 bulan lalu s.d. 25 bulan ini)
+        // Range tanggal
         $startDate = $request->input('startDate')
             ? Carbon::parse($request->input('startDate'))->startOfDay()
             : now()->subMonth()->day(26)->startOfDay();
@@ -125,23 +128,36 @@ class PageController extends Controller
             ? Carbon::parse($request->input('endDate'))->endOfDay()
             : now()->day(25)->endOfDay();
 
-        // --- Ambil data absensi (filter berdasarkan office & tanggal)
-        $absences = Absence::with(['employee.department', 'employee.office'])
-            ->whereHas('employee.office', function ($q) use ($alias) {
-                $q->where('Alias', $alias);
-            })
+        // --- Ambil data absensi
+        $absences = Absence::with(['employee.department', 'employee.office']);
+
+        // FILTER OFFICE BERDASARKAN SN DI CHECKINOUT
+        if (strtolower($alias) !== 'all') {
+
+            // Cari SN berdasarkan alias (office)
+            $sn = Office::where('Alias', $alias)->value('SN');
+
+            if ($sn) {
+                // Filter langsung berdasarkan SN dari tabel checkinout
+                $absences->where('sn', $sn);
+            }
+        }
+
+        // Filter tanggal
+        $absences = $absences
             ->whereBetween('checktime', [$startDate, $endDate])
             ->get();
 
-        // --- Buat daftar tanggal dalam range (termasuk weekend)
+        // --- Generate daftar tanggal
         $tanggalList = collect();
         $tanggal = Carbon::parse($startDate);
+
         while ($tanggal->lte(Carbon::parse($endDate))) {
             $tanggalList->push($tanggal->format('M y D d'));
             $tanggal->addDay();
         }
 
-        // --- Kelompokkan absensi per karyawan
+        // --- Kelompokkan per employee
         $groupedByEmployee = $absences->groupBy('userid');
         $data = [];
 
@@ -149,22 +165,20 @@ class PageController extends Controller
             $employee = $records->first()->employee;
 
             $row = [
-                'nip' => $employee->badgenumber ?? '-',
-                'name' => $employee->name ?? '-',
-                'office' => $employee->office->Alias ?? '-',
+                'nip'        => $employee->badgenumber ?? '-',
+                'name'       => $employee->name ?? '-',
+                'office'     => $employee->office->Alias ?? '-',
                 'department' => $employee->department->DeptName ?? '-',
             ];
 
-            // --- Isi jam per tanggal (kosong kalau tidak ada absen)
             foreach ($tanggalList as $tanggal) {
                 $jam = $records
                     ->filter(fn($r) => Carbon::parse($r->checktime)->format('M y D d') === $tanggal)
                     ->pluck('checktime')
                     ->map(fn($t) => Carbon::parse($t)->format('H:i'))
-                    ->sort() // urutkan dari jam paling kecil ke besar
+                    ->sort()
                     ->values();
 
-                // ambil hanya dua: pertama dan terakhir
                 if ($jam->count() > 1) {
                     $jam = $jam->only([0, $jam->count() - 1]);
                 }
@@ -175,6 +189,15 @@ class PageController extends Controller
             $data[] = $row;
         }
 
-        return view('pages.report', compact('data', 'offices', 'departments', 'tanggalList', 'alias', 'dept', 'startDate', 'endDate'));
+        return view('pages.report', compact(
+            'data',
+            'offices',
+            'departments',
+            'tanggalList',
+            'alias',
+            'dept',
+            'startDate',
+            'endDate'
+        ));
     }
 }

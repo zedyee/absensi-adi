@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-
     <style>
         #absenceTable {
             font-size: 0.800rem;
@@ -98,7 +97,14 @@
                         <tr>
                             <td>{{ $row['nip'] }}</td>
                             <td>{{ $row['name'] }}</td>
-                            <td>{{ $row['office'] }}</td>
+
+                            {{-- BG MERAH JIKA OFFICE TIDAK SAMA --}}
+                            @if ($row['office'] != $alias && strtolower($alias) != 'all')
+                                <td class="bg-danger text-white">{{ $row['office'] }}</td>
+                            @else
+                                <td>{{ $row['office'] }}</td>
+                            @endif
+
                             <td>{{ $row['department'] }}</td>
                             @foreach ($tanggalList as $tgl)
                                 <td>{{ $row[$tgl] ?? '-' }}</td>
@@ -109,12 +115,10 @@
             </table>
         </div>
     </div>
-
 @endsection
 
 <!-- js scripts -->
 @section('scripts')
-
     <script>
         $(document).ready(function() {
             // Inisialisasi DataTable
@@ -182,19 +186,19 @@
             }
 
             // === Tombol Excel ===
-             $('.btn-excel').on('click', function() {
-                 var today = new Date().toISOString().split('T')[0];
-                 var tableClone = $('#absenceTable').clone();
-                 tableClone.find('tbody tr').each(function(i, row) {
-                     if ($(row).css('display') === 'none') {
-                         $(row).remove();
-                     }
-                 });
-                 var wb = XLSX.utils.table_to_book(tableClone[0], {
-                     sheet: "Data Report Absensi"
-                 });
-                 XLSX.writeFile(wb, `report_absensi_${today}.xlsx`);
-             });
+            $('.btn-excel').on('click', function() {
+                var today = new Date().toISOString().split('T')[0];
+                var tableClone = $('#absenceTable').clone();
+                tableClone.find('tbody tr').each(function(i, row) {
+                    if ($(row).css('display') === 'none') {
+                        $(row).remove();
+                    }
+                });
+                var wb = XLSX.utils.table_to_book(tableClone[0], {
+                    sheet: "Data Report Absensi"
+                });
+                XLSX.writeFile(wb, `report_absensi_${today}.xlsx`);
+            });
 
             // === Tombol Print ===
             $('.btn-print').on('click', function() {
@@ -285,5 +289,4 @@
 
     <!-- Tambahkan library XLSX untuk ekspor Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
 @endsection
